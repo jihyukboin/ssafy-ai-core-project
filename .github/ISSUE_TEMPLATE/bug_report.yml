@@ -1,0 +1,41 @@
+name: 버그 제보
+description: 실행 오류, 화면 문제 또는 근거와 다른 답변을 알려 주세요.
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: API 키, 환경변수 파일, 개인정보와 비공개 자료는 첨부하지 마세요.
+  - type: textarea
+    id: problem
+    attributes:
+      label: 문제 설명
+      description: 어떤 화면이나 기능에서 문제가 발생했나요?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 재현 방법
+      description: 접속 경로, 입력한 질문, 기업 종목코드 등 재현 순서를 적어 주세요.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 기대 동작과 실제 동작
+      description: 답변 오류라면 자료 기준일과 확인 가능한 원문 링크도 적어 주세요.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: 실행 환경
+      placeholder: OS, 브라우저, Python·Node.js 버전, 사용한 커밋
+    validations:
+      required: true
+  - type: textarea
+    id: attachments
+    attributes:
+      label: 화면 또는 로그
+      description: 민감한 정보를 제거한 화면이나 로그를 첨부해 주세요.

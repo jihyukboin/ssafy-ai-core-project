@@ -2,6 +2,11 @@
 
 # 살래말래 · Sell or Not
 
+[![CI](https://github.com/jihyukboin/ssafy-ai-core-project/actions/workflows/ci.yml/badge.svg)](https://github.com/jihyukboin/ssafy-ai-core-project/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-2563eb.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](#시작하기)
+[![Node.js](https://img.shields.io/badge/Node.js-20.19%2B-339933?logo=nodedotjs&logoColor=white)](#시작하기)
+
 ### 투자하기 전, 기업에 먼저 물어보세요.
 
 국내 시가총액 상위 100개 기업을 탐색하고,<br />
@@ -9,7 +14,7 @@
 
 `JavaScript` · `Tailwind CSS` · `SSR` · `FastAPI` · `LangGraph` · `Chroma`
 
-[시연 영상](#시연-영상) · [서비스 화면](#서비스-화면) · [시작하기](#시작하기) · [기술 구성](#기술-구성)
+[시연 영상](#시연-영상) · [서비스 화면](#서비스-화면) · [시작하기](#시작하기) · [기술 구성](#기술-구성) · [기여하기](CONTRIBUTING.md)
 
 </div>
 
@@ -232,3 +237,20 @@ PYTHONPATH=.:backend backend/.venv/bin/python scripts/evaluate_rag.py
 - [RAG 품질 비교](docs/검증/RAG_품질비교.md) — 실제 질문과 응답, 검색 방식 비교
 - [데이터 안내](data/kr_stocks/README.md) — 수집 방법·출처·이용 조건
 - [백엔드 안내](backend/README.md) · [프런트엔드 안내](frontend/README.md)
+
+## 기여하기
+
+버그 수정, 문서 개선, 기능 제안을 환영합니다. 시작 방법과 검증 절차는 [기여 안내](CONTRIBUTING.md)를 참고하세요.
+
+- [버그 제보](https://github.com/jihyukboin/ssafy-ai-core-project/issues/new?template=bug_report.yml)
+- [기능 제안](https://github.com/jihyukboin/ssafy-ai-core-project/issues/new?template=feature_request.yml)
+
+## 라이선스와 출처
+
+프로젝트의 자체 작성 코드와 문서는 [MIT 라이선스](LICENSE)로 공개합니다. 외부 이미지·로고·폰트·데이터에는 각 권리자의 이용 조건이 적용됩니다.
+
+- 기업정보·시세·공시와 위키백과: [데이터 출처 및 이용 조건](data/kr_stocks/README.md)
+- 서비스 아이콘: [프런트엔드의 출처 안내](frontend/README.md)
+- Pretendard GOV: [폰트 라이선스](frontend/public/fonts/pretendard-gov/LICENSE.txt)
+
+스크린샷과 영상에 포함된 제3자 자료의 권리는 각 권리자에게 있습니다.
