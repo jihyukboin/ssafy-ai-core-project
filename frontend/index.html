@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ko" data-theme="<!--theme-->">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta
+      name="description"
+      content="기업정보와 공시·설명 문서를 근거로 답변하는 기업 지식 서비스입니다."
+    />
+    <link rel="icon" type="image/webp" href="/logo.webp?v=stocknote" />
+    <title>AI PJT</title>
+    <script>
+      try {
+        const theme = localStorage.getItem("chatgpt-mock-theme");
+        if (theme === "dark" || theme === "light") {
+          document.documentElement.dataset.theme = theme;
+        }
+      } catch {}
+    </script>
+    <!--font-preloads-->
+    <link
+      rel="stylesheet"
+      href="/fonts/pretendard-gov/pretendardvariable-gov-dynamic-subset.css"
+    />
+    <link rel="stylesheet" href="/src/styles/globals.css" />
+  </head>
+  <body>
+    <div
+      class="app group/app [--sidebar-offset:260px] [&.sidebar-collapsed]:[--sidebar-offset:0px] max-md:[--sidebar-offset:0px] flex h-dvh min-h-[400px] overflow-hidden"
+      id="app"
+    >
+      <div
+        class="sidebar-backdrop hidden max-md:group-[.mobile-sidebar-open]/app:fixed max-md:group-[.mobile-sidebar-open]/app:inset-0 max-md:group-[.mobile-sidebar-open]/app:z-30 max-md:group-[.mobile-sidebar-open]/app:block max-md:group-[.mobile-sidebar-open]/app:bg-black/40"
+        id="sidebar-backdrop"
+      ></div>
+      <aside
+        class="sidebar flex w-[260px] shrink-0 flex-col overflow-hidden bg-sidebar px-[8px] transition-[width] duration-180 ease-in-out md:group-[.sidebar-collapsed]/app:w-0 md:group-[.sidebar-collapsed]/app:px-0 max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:z-[31] max-md:-translate-x-full max-md:transition-transform max-md:duration-200 max-md:group-[.mobile-sidebar-open]/app:translate-x-0"
+        id="sidebar"
+        aria-label="사이드바"
+      >
+        <div
+          class="sidebar-header flex h-[64px] min-h-[64px] items-center justify-between px-[4px] [&>button:last-child]:text-secondary"
+        >
+          <button
+            class="icon-button brand-button inline-flex size-[36px] shrink-0 items-center justify-center rounded-[9px] hover:bg-hover [&>svg]:size-[22px] [&>img]:size-[36px]"
+            data-action="new"
+            aria-label="AI PJT 홈"
+          >
+            <img src="/logo.webp?v=stocknote" width="36" height="36" alt="사이트 로고" />
+          </button>
+          <button
+            class="icon-button inline-flex size-[36px] shrink-0 items-center justify-center rounded-[9px] hover:bg-hover [&>svg]:size-[22px]"
+            data-action="sidebar"
+            aria-label="사이드바 닫기"
+            data-icon="panel"
+          ></button>
+        </div>
+        <div
+          class="sidebar-scroll min-h-0 flex-1 overflow-auto pt-[20px] [scrollbar-width:thin] [scrollbar-color:transparent_transparent] hover:[scrollbar-color:var(--border)_transparent]"
+        >
+          <section
+            class="sidebar-section mb-[22px] [&>h2]:px-[12px] [&>h2]:py-[8px] [&>h2]:text-[12px] [&>h2]:font-medium [&>h2]:text-secondary"
+            aria-labelledby="chats-heading"
+          >
+            <h2 id="chats-heading">기업별 채팅</h2>
+            <div id="chat-list"><!--chat-list--></div>
+          </section>
+        </div>
+      </aside>
+      <main class="main relative flex min-w-0 flex-1 flex-col bg-surface">
+        <header
+          class="topbar relative z-[3] flex h-[64px] shrink-0 items-center justify-between pr-[20px] pl-[16px] max-md:h-[60px] max-md:px-[12px]"
+        >
+          <div class="topbar-left flex items-center gap-[9px] max-md:gap-[2px]">
+            <div
+              class="collapsed-controls hidden gap-[7px] md:group-[.sidebar-collapsed]/app:flex max-md:flex"
+            >
+              <button
+                class="icon-button inline-flex size-[36px] shrink-0 items-center justify-center rounded-[9px] hover:bg-hover [&>svg]:size-[22px]"
+                data-action="sidebar"
+                aria-label="사이드바 열기"
+                data-icon="panel"
+              ></button>
+            </div>
+            <span
+              class="px-[10px] py-[8px] text-[20px] font-medium tracking-[-0.5px] max-md:pl-[6px] max-md:text-[18px]"
+              >AI PJT</span
+            >
+          </div>
+        </header>
+        <div
+          class="chat-area group/chat flex min-h-0 flex-1 flex-col items-center overflow-y-auto [scrollbar-width:thin] [scrollbar-color:var(--border)_transparent]"
+          id="chat-area"
+        >
+          <div
+            class="conversation w-full max-w-[816px] flex-1 px-[24px] pt-[22px] pb-[30px] max-md:px-[20px] max-md:pt-[16px] max-md:pb-[25px]"
+            id="conversation"
+            aria-live="polite"
+            aria-label="대화 내용"
+            hidden
+          ></div>
+          <section
+            class="start-screen flex min-h-[110px] w-full flex-[0_0_calc(42%-25px)] flex-col items-center justify-end px-[24px] pb-[30px] min-[1500px]:basis-[calc(44%-25px)] max-md:basis-[38%] max-md:pb-[24px] [@media(max-height:500px)]:min-h-[90px] [@media(max-height:500px)]:pb-[15px]"
+            id="start-screen"
+          >
+            <h1
+              id="greeting"
+              class="inline-flex max-w-full items-center justify-center gap-[12px] text-center text-[28px] leading-[1.5] font-[550] tracking-[-0.8px] max-md:text-[25px]"
+            >
+              무엇을 도와드릴까요?
+            </h1>
+            <p
+              id="service-status"
+              class="mt-[12px] min-h-[36px] text-center text-[11px] leading-[18px] text-secondary"
+            >
+              <!--rag-status-->
+            </p>
+          </section>
+          <div
+            class="composer-area relative w-full max-w-[816px] px-[24px] max-md:px-[12px] group-[.has-messages]/chat:sticky group-[.has-messages]/chat:bottom-0 group-[.has-messages]/chat:mt-auto group-[.has-messages]/chat:bg-surface group-[.has-messages]/chat:pt-[10px] group-[.has-messages]/chat:before:pointer-events-none group-[.has-messages]/chat:before:absolute group-[.has-messages]/chat:before:inset-x-0 group-[.has-messages]/chat:before:top-[-20px] group-[.has-messages]/chat:before:h-[20px] group-[.has-messages]/chat:before:bg-linear-to-b group-[.has-messages]/chat:before:from-transparent group-[.has-messages]/chat:before:to-surface group-[.has-messages]/chat:before:content-['']"
+            id="composer-area"
+          >
+            <form
+              class="composer cursor-text rounded-[28px] border border-line bg-composer px-[13px] pt-[15px] pb-[9px] shadow-[0_2px_8px_#00000009] focus-within:border-[#d5d5d5] dark:border-[#454545] max-md:rounded-[25px] max-md:px-[10px] max-md:pt-[13px] max-md:pb-[8px]"
+              id="composer"
+            >
+              <label class="sr-only" for="prompt"
+                >AI에게 메시지 보내기</label
+              >
+              <textarea
+                class="block max-h-[200px] h-[30px] min-h-[30px] w-full resize-none overflow-y-auto border-0 bg-transparent px-[7px] py-0 text-[16px] leading-[24px] text-primary outline-none placeholder:text-[#8f8f8f] placeholder:opacity-100"
+                id="prompt"
+                rows="1"
+                placeholder="무엇이든 물어보세요"
+                autofocus
+              ></textarea>
+              <div
+                class="composer-toolbar mt-[14px] flex min-h-[36px] items-center justify-end gap-[10px] max-md:mt-[12px]"
+              >
+                <!--company-tools-->
+                <button
+                  class="send-button flex size-[36px] items-center justify-center rounded-full bg-primary text-surface enabled:hover:opacity-80 disabled:bg-line disabled:opacity-100 [&>svg]:size-[22px] [&>svg]:[stroke-width:2]"
+                  type="submit"
+                  id="send-button"
+                  aria-label="메시지 보내기"
+                  data-icon="arrowUp"
+                  disabled
+                ></button>
+              </div>
+            </form>
+            <p
+              class="disclaimer px-0 pt-[11px] pb-[8px] text-center text-[11px] leading-[18px] text-secondary group-[:not(.has-messages)]/chat:fixed group-[:not(.has-messages)]/chat:right-0 group-[:not(.has-messages)]/chat:bottom-0 group-[:not(.has-messages)]/chat:left-(--sidebar-offset) group-[:not(.has-messages)]/chat:bg-surface max-md:text-[10px] max-md:group-[:not(.has-messages)]/chat:px-[16px] max-md:group-[:not(.has-messages)]/chat:py-[8px] max-md:group-[.has-messages]/chat:px-[3px] max-md:group-[.has-messages]/chat:py-[9px] [@media(max-height:500px)]:hidden [&>button]:p-0 [&>button]:text-inherit [&>button]:underline [&>button]:underline-offset-2"
+            >
+              AI는 실수를 할 수 있습니다. 투자 권유가 아니며 전문가의 투자
+              조언을 대신하지 않습니다.
+            </p>
+          </div>
+        </div>
+      </main>
+    </div>
+    <div
+      class="toast fixed bottom-[44px] left-1/2 z-100 max-w-[calc(100%-32px)] -translate-x-1/2 rounded-[12px] border border-line bg-surface px-[20px] py-[12px] text-center text-[13px] shadow-popover max-md:w-max"
+      id="toast"
+      role="status"
+      hidden
+    ></div>
+    <!--initial-state-->
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

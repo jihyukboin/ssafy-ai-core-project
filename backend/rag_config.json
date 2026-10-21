@@ -1,0 +1,13 @@
+{
+  "chat_model": "gpt-5.4-nano",
+  "embedding_model": "text-embedding-3-small",
+  "chunk_size": 1200,
+  "chunk_overlap": 200,
+  "top_k": 6,
+  "fetch_k": 24,
+  "search_method": "mmr",
+  "mmr_lambda": 0.65,
+  "selected_document_limit": 1,
+  "embedding_batch_size": 32,
+  "wiki_enabled": true
+}

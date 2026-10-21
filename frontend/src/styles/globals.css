@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme inline {
+  --font-sans: "Pretendard GOV Variable", Pretendard, system-ui, sans-serif;
+  --color-surface: var(--bg);
+  --color-sidebar: var(--sidebar);
+  --color-hover: var(--hover);
+  --color-primary: var(--text);
+  --color-secondary: var(--secondary);
+  --color-line: var(--border);
+  --color-composer: var(--composer);
+  --color-bubble: var(--bubble);
+  --shadow-popover: var(--popover-shadow);
+}
+
+@layer base {
+  :root {
+    font-family: var(--font-sans);
+    line-height: normal;
+    color: #0d0d0d;
+    background: #fff;
+    font-synthesis: none;
+    font-size: 14px;
+    --bg: #fff;
+    --sidebar: #f9f9f9;
+    --hover: #efefef;
+    --text: #0d0d0d;
+    --secondary: #676767;
+    --border: #e5e5e5;
+    --composer: #fff;
+    --bubble: #f4f4f4;
+    --popover-shadow: 0 4px 24px #00000014;
+    color-scheme: light;
+  }
+  :root[data-theme="dark"] {
+    --bg: #212121;
+    --sidebar: #171717;
+    --hover: #303030;
+    --text: #ececec;
+    --secondary: #afafaf;
+    --border: #424242;
+    --composer: #303030;
+    --bubble: #303030;
+    --popover-shadow: 0 4px 24px #0003;
+    color-scheme: dark;
+  }
+
+  body {
+    color: var(--text);
+    background: var(--bg);
+  }
+
+  button {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button:disabled {
+    cursor: default;
+  }
+
+  button:focus-visible,
+  a:focus-visible {
+    outline: 2px solid #8b9eff;
+    outline-offset: 3px;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      scroll-behavior: auto !important;
+      transition: none !important;
+    }
+  }
+}
