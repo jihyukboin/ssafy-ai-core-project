@@ -84,9 +84,9 @@ class RagService:
 
     def ready(self):
         require_key()
-        if self.store.meta.count() != len(self.data.companies):
+        if not self.store.metadata_ready(self.data):
             raise RagError(
-                "기업 메타데이터 색인이 준비되지 않았습니다. backend에서 .venv/bin/python -m rag.index를 실행하세요."
+                "기업 메타데이터 색인이 없거나 현재 데이터와 다릅니다. backend에서 .venv/bin/python -m rag.index를 실행하세요."
             )
         if self.model is None:
             self.model = make_model(self.config)
@@ -101,7 +101,7 @@ class RagService:
             "companies": len(self.data.companies),
             "key_configured": bool(os.environ.get("GMS_KEY")),
             "ready": bool(os.environ.get("GMS_KEY"))
-            and self.store.meta.count() == len(self.data.companies),
+            and self.store.metadata_ready(self.data),
             "price_as_of": self.data.price_as_of,
             "graph": ["retrieve", "generate"],
             "config": {
@@ -247,6 +247,7 @@ class RagService:
         )
         by_code = {c["stock_code"]: c for c in eligible}
         progress("selecting", "수치·시장 조건을 검증하고 사업 관련성을 선별합니다.")
+        candidate_codes = set(codes)
         if plan.keywords:
             candidate_codes = list(
                 dict.fromkeys(
@@ -276,7 +277,11 @@ class RagService:
             ]
         items, seen = [], set()
         for match in selection:
-            if match.stock_code not in by_code or match.stock_code in seen:
+            if (
+                match.stock_code not in by_code
+                or match.stock_code not in candidate_codes
+                or match.stock_code in seen
+            ):
                 continue
             seen.add(match.stock_code)
             company = by_code[match.stock_code]

@@ -11,7 +11,6 @@ from threading import Lock
 import requests
 from pydantic import BaseModel, Field
 
-from .config import WORK
 from .llm import ask_json
 
 
@@ -66,17 +65,22 @@ class WikiClient:
             time.sleep(max(0, 0.4 - (time.monotonic() - self.last_request)))
             for attempt in range(3):
                 self.last_request = time.monotonic()
-                response = requests.get(
-                    "https://ko.wikipedia.org/w/api.php",
-                    params={"format": "json", "action": "query", **params},
-                    headers=self.headers,
-                    timeout=20,
-                )
-                if response.status_code not in (429, 500, 502, 503, 504):
-                    break
+                try:
+                    response = requests.get(
+                        "https://ko.wikipedia.org/w/api.php",
+                        params={"format": "json", "action": "query", **params},
+                        headers=self.headers,
+                        timeout=20,
+                    )
+                    if response.status_code not in (429, 500, 502, 503, 504):
+                        response.raise_for_status()
+                        return response.json()
+                    if attempt == 2:
+                        response.raise_for_status()
+                except (requests.Timeout, requests.ConnectionError):
+                    if attempt == 2:
+                        raise
                 time.sleep(min(4, 2**attempt))
-            response.raise_for_status()
-            return response.json()
 
     def search(self, query, code):
         cached = self.cache.get("wiki-search", {"query": query, "code": code})
@@ -165,17 +169,6 @@ class Collector:
             plan = QueryPlan.model_validate(cached)
             progress("queries", "저장된 검색어를 재사용합니다.")
         baseline = self.data.baseline(code)
-        if not baseline:
-            return (
-                question,
-                [],
-                {
-                    "queries": plan.queries,
-                    "cache_hit": cached is not None,
-                    "selected": [],
-                    "rejected": [],
-                },
-            )
         local = self.data.candidates(code)
         candidates = [
             {
@@ -194,7 +187,7 @@ class Collector:
         )
         if self.config.wiki_enabled:
             try:
-                for query in plan.queries[:2]:
+                for query in plan.queries:
                     candidates.extend(self.wiki.search(query, code))
             except (requests.RequestException, ValueError, KeyError):
                 progress(
@@ -202,7 +195,7 @@ class Collector:
                     "외부 위키백과 연결이 지연되어 확보된 공시 원문을 사용합니다.",
                 )
         candidates = list({row["id"]: row for row in candidates}.values())
-        baseline_id = f"{code}:{baseline['receipt_no']}"
+        baseline_id = f"{code}:{baseline['receipt_no']}" if baseline else None
         select_key = {
             "queries": plan.queries,
             "question": plan.standalone_question,
@@ -227,13 +220,15 @@ class Collector:
             ).model_dump()
             self.cache.put("selection", select_key, choice)
         known = {row["id"]: row for row in candidates}
-        selected = [baseline_id]
+        selected = [baseline_id] if baseline_id else []
         selected.extend(
-            [
-                value
-                for value in choice["selected_ids"]
-                if value in known and value != baseline_id
-            ][: self.config.selected_document_limit]
+            list(
+                dict.fromkeys(
+                    value
+                    for value in choice["selected_ids"]
+                    if value in known and value != baseline_id
+                )
+            )[: self.config.selected_document_limit]
         )
         # The company's own article is also useful background and constitutes a second source type.
         own_wiki = next(

@@ -79,6 +79,16 @@ class VectorStore:
     def counts(self):
         return {"stock_meta": self.meta.count(), "disclosure_docs": self.docs.count()}
 
+    def metadata_ready(self, data):
+        indexed = self.meta.get(include=["metadatas"])
+        expected = {company["stock_code"]: company for company in data.companies}
+        return bool(expected) and set(indexed["ids"]) == set(expected) and all(
+            metadata.get("price_as_of") == data.price_as_of
+            and metadata.get("content_hash")
+            == hashlib.sha256(expected[code]["index_text"].encode()).hexdigest()
+            for code, metadata in zip(indexed["ids"], indexed["metadatas"])
+        )
+
     def _upsert(self, collection, rows, progress):
         if not rows:
             return 0
@@ -143,7 +153,13 @@ class VectorStore:
                 {"id": company["stock_code"], "text": text, "metadata": metadata}
             )
         with self.lock:
-            return self._upsert(self.meta, rows, progress)
+            added = self._upsert(self.meta, rows, progress)
+            obsolete = set(self.meta.get(include=[])["ids"]) - {
+                company["stock_code"] for company in data.companies
+            }
+            if obsolete:
+                self.meta.delete(ids=list(obsolete))
+            return added
 
     def index_document(self, document, progress):
         text_hash = hashlib.sha256(document["text"].encode()).hexdigest()[:16]
@@ -162,7 +178,14 @@ class VectorStore:
             for i, text in enumerate(chunks)
         ]
         with self.lock:
-            return self._upsert(self.docs, rows, progress)
+            added = self._upsert(self.docs, rows, progress)
+            # Keep the previous revision until the new one has been fully embedded.
+            obsolete = set(self.docs.get(where={"doc_id": doc_id}, include=[])["ids"]) - {
+                row["id"] for row in rows
+            }
+            if obsolete:
+                self.docs.delete(ids=list(obsolete))
+            return added
 
     def retrieve(self, code, question, method=None, top_k=None):
         item = self.meta.get(ids=[code])
@@ -190,7 +213,7 @@ class VectorStore:
             if method == "mmr"
             else list(range(min(k, len(result["ids"][0]))))
         )
-        seen = set()
+        seen = {hashlib.sha256(evidence[0]["text"].encode()).hexdigest()}
         for i in indices:
             text = result["documents"][0][i]
             digest = hashlib.sha256(text.encode()).hexdigest()
